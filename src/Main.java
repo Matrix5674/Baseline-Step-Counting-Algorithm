@@ -20,8 +20,6 @@ public class Main {
 
         graphValues(xAcc, yAcc, zAcc, gyroX, gyroY, gyroZ);
 
-
-
     }
 
     public static void graphValues(ArrayList<Double> xAcc, ArrayList<Double> yAcc, ArrayList<Double> zAcc, ArrayList<Double> gryoX, ArrayList<Double> gyroY, ArrayList<Double> gyroZ){
@@ -41,6 +39,15 @@ public class Main {
             double zValue = z.get(line);
             double distance = Math.sqrt(  ( (xValue*xValue) + (yValue*yValue) + (zValue*zValue) )  );
             plt.plot(index, line, distance).strokeColor(color).strokeWeight(2).style("-");
+        }
+        for (int line = 200; line < 1000; line++) {
+            double distance = Math.sqrt(  ( (x.get(line)*x.get(line)) + (y.get(line)*y.get(line)) + (z.get(line)*z.get(line)) )  );
+            double previousDistance = Math.sqrt(  ( (x.get(line-1)*x.get(line-1)) + (y.get(line-1)*y.get(line-1)) + (z.get(line-1)*z.get(line-1)) )  );
+            double nextDistance = Math.sqrt(  ( (x.get(line+1)*x.get(line+1)) + (y.get(line+1)*y.get(line+1)) + (z.get(line+1)*z.get(line+1)) )  );
+
+            if (previousDistance < distance && nextDistance < distance){
+                plt.plot(index+4, line, distance).strokeColor("black").strokeWeight(5).style(".");
+            }
         }
 
         return plt;
