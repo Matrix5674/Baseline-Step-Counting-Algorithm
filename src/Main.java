@@ -9,12 +9,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
+    public static int timesDataSmoothed = 200;
+
     public static void main(String[] args) {
+        findOptimalSmoothingRate();
 
-        double rmse = testAllFiles("2024/");
+        double realRMSE = testAllFiles("2024/");
 
-        System.out.println("The mean error is: " + rmse + " steps.");
+        System.out.println(timesDataSmoothed);
 
+        System.out.println("The mean error is: " + realRMSE + " steps.");
+
+    }
+
+    public static void findOptimalSmoothingRate (){
+        double previous_rmse = Double.POSITIVE_INFINITY;
+        double rmse = 0;
+        for (int i = timesDataSmoothed; i > 0; i--) {
+
+            rmse = testAllFiles_noOutput("2024/");
+
+            timesDataSmoothed = i;
+
+            if (checkForPerfectSmoothingRate(previous_rmse, rmse)) break;
+
+            previous_rmse = rmse;
+        }
+
+    }
+
+    public static boolean checkForPerfectSmoothingRate(double previous_rmse, double rmse){
+        return rmse > previous_rmse;
     }
 
 
@@ -74,13 +99,15 @@ public class Main {
             double data = Double.parseDouble(l);
             columnData.add(data);
         }
-        for (int i = 0; i < 30; i++){
+        for (int i = 0; i < timesDataSmoothed; i++){
             columnData = smoothData(columnData);
         }
 
         return columnData;
 
     }
+
+
     public static ArrayList<String> readFile (String PATH){
         ArrayList<String> lines = new ArrayList<>();
         try {
@@ -136,6 +163,35 @@ public class Main {
 
         return -1;
     }
+
+    private static double testAllFiles_noOutput(String folderPath) {
+        try {
+            DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(folderPath), "*.csv");
+            double errorSum = 0;
+            int numFiles = 0;
+
+            for (Path filePath : directoryStream) {
+                String fileName = filePath.toString();
+                ArrayList<String> content = readFile(fileName);
+
+                int predictedSteps = countSteps(content);  //    ← this is your method
+
+                int realSteps = getRealStepsFromFilename(filePath);
+                numFiles++;
+
+                int error = realSteps - predictedSteps;
+                errorSum += error * error;       // to calcualte mean *squared* error
+
+            }
+
+            double meanSquaredError = Math.sqrt(errorSum / numFiles);
+            return meanSquaredError;
+        } catch (IOException e) {
+            System.err.println("Error reading files: " + e.getMessage());
+        }
+
+        return -1;
+    } //This function is to find the optimal smoothing ratio. It doesn't print an output.
 
     private static int getRealStepsFromFilename(Path filePath) {
         String filename = filePath.getFileName().toString().toLowerCase();
