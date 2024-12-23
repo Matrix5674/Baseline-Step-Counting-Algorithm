@@ -46,31 +46,12 @@ public class Main {
                 peaks.add(distance);
             }
         }
-        return minThreshold(peaks);
+        return peaks;
     }
 
-    public static ArrayList<Double> smoothData(ArrayList<Double> column) {
-        ArrayList<Double> smoothed = new ArrayList<>();
-        for (int i = 1; i < column.size()-1; i++) {
-            double sum = column.get(i) + column.get(i-1) + column.get(i+1);
-            double average = sum/3;
 
-            smoothed.add(average);
 
-        }
-        return smoothed;
-    }
 
-    public static ArrayList<Double> minThreshold (ArrayList<Double> peaks){
-        ArrayList<Double> truePeaks = new ArrayList<>();
-        double threshold = 1.0;
-        for(double peak:peaks){
-            if (peak > threshold){
-                truePeaks.add(peak);
-            }
-        }
-        return truePeaks;
-    }
 
 
 
@@ -93,8 +74,11 @@ public class Main {
             double data = Double.parseDouble(l);
             columnData.add(data);
         }
+        for (int i = 0; i < 30; i++){
+            columnData = smoothData(columnData);
+        }
 
-        return smoothData(columnData);
+        return columnData;
 
     }
     public static ArrayList<String> readFile (String PATH){
@@ -108,6 +92,19 @@ public class Main {
         return lines;
     }
 
+    public static ArrayList<Double> smoothData(ArrayList<Double> column) {
+        ArrayList<Double> smoothed = new ArrayList<>();
+        for (int i = 1; i < column.size()-1; i++) {
+            double sum = column.get(i) + column.get(i-1) + column.get(i+1);
+            double average = sum/3;
+
+
+            smoothed.add(average);
+
+
+        }
+        return smoothed;
+    }
 
     private static double testAllFiles(String folderPath) {
         try {
