@@ -72,7 +72,8 @@ public class Main {
             }
         }
         return peaks;
-    }
+
+    } //Baseline Algorithm
 
 
 
